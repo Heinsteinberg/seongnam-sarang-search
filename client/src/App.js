@@ -49,6 +49,11 @@ const App = () => {
         }
     };
 
+    useEffect(() => {
+        document.documentElement.lang = 'ko';
+        document.title = '성남사랑상품권 가맹점 검색기';
+    }, []);
+
     return (
         <>
             <Grid
@@ -90,6 +95,7 @@ const App = () => {
                     direction="column"
                     justifyContent="center"
                     alignItems="stretch"
+                    style={{ marginBottom: '10px' }}
                 >
                     {progress && <CircularProgress style={{ margin: 'auto' }}/>}
                     {storeList.length > 0 && storeList.map((e, i) => {
