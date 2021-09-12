@@ -1,58 +1,46 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useHistory } from 'react-router';
-
 import axios from 'axios';
 
-const Store = props => {
-    const store = props.store;
-    return (
-        <>
-            <fieldset>
-                <legend>{store.name}</legend>
-                품목: {store.item || '(공란)'}<br/>
-                주소: {store.location.full || '(공란)'}<br/>
-                전화번호: {store.tel || '(공란)'}<br/>
-                결제방법: {store.payment || '(공란)'}<br/>
-            </fieldset>
-        </>
-    );
-};
+import { Grid, TextField, Button, Typography, CircularProgress } from '@material-ui/core';
+import '@fontsource/roboto';
+
+import Store from './Store';
+import './app.css';
 
 const App = () => {
     const history = useHistory();
 
     const [keyword, setKeyword] = useState('');
+    const [inputErr, setInputErr] = useState(false);
+    const [progress, setProgress] = useState(false);
+    const [message, setMessage] = useState('');
     const [storeList, setStoreList] = useState([]);
-
-    const onClick = () => {
-        axios.post('/api/renew')
-            .then(res => {
-                console.log(res.data);
-            })
-            .catch(err => {
-                console.error(err);
-            })
-    };
-
+    
     const onChange = e => {
         setKeyword(e.target.value);
+        setInputErr(false);
     };
 
     const onSubmit = e => {
         e.preventDefault();
+        setMessage('');
+        setStoreList([]);
         if (keyword.trim() === '') {
-            alert('키워드를 입력하세요');
-            setKeyword('');
+            setInputErr(true);
         } else {
+            setProgress(true);
             axios.get(`/api/find-store/${keyword}`)
                 .then(res => {
                     const data = res.data;
+                    setProgress(false);
                     if (data.length > 0) {
-                        alert(`${data.length}건 검색됨`);
                         setStoreList(data);
+                        setMessage(`${data.length}건 검색됨`);
                         history.push(`/${keyword}`);
                     } else {
-                        alert('검색 결과가 없습니다');
+                        setKeyword('');
+                        setMessage('검색 결과가 없습니다');
                     }
                 })
                 .catch(err => {
@@ -63,18 +51,52 @@ const App = () => {
 
     return (
         <>
-            <h1>성남사랑상품권 가맹점 검색기(미완성)</h1>
-            <a href="/">홈</a>
-            {/* <div className="App">
-                <button onClick={onClick}>DB 갱신</button>
-            </div> */}
-            <form onSubmit={onSubmit}>
-                <input type="text" placeholder="상호명을 입력하세요" onChange={onChange} value={keyword}/>
-                <input type="submit" value="검색"/>
-            </form>
-            {storeList.length > 0 && storeList.map((e, i) => {
-                return <Store key={i} store={e}/>
-            })}
+            <Grid
+                container
+                direction="column"
+                justifyContent="center"
+                alignItems="stretch"
+                style={{minHeight: '100vh', padding: '0 10%'}}
+            >
+                <Grid
+                    container
+                    direction="column"
+                    justifyContent="center"
+                    alignItems="stretch"
+                    style={{ position: 'sticky', paddingBottom: '10px', backgroundColor: 'white', top: '0' }}
+                >
+                    <h1 style={{textAlign: 'center', margin: '10px 0'}}>
+                        <a href="/" style={{ color: 'black', textDecoration: 'none' }}>성남사랑상품권<br/>가맹점 검색기</a>
+                    </h1>
+                    <form onSubmit={onSubmit}>
+                        <TextField 
+                            error={inputErr}
+                            id="outlined-search"
+                            label={inputErr ? '상호명을 입력하세요' : '상호명'}
+                            type="search" 
+                            variant="outlined"
+                            fullWidth
+                            onChange={onChange}
+                            value={keyword}
+                            InputProps={{endAdornment: <Button type="submit" variant="contained" disableElevation style={{ marginLeft: '10px' }}>검색</Button>}}
+                        />
+                    </form>
+                    <Typography variant="caption" display="block" gutterBottom style={{ margin: '10px 0 0 10px' }}>
+                        {message}
+                    </Typography>
+                </Grid>
+                <Grid
+                    container
+                    direction="column"
+                    justifyContent="center"
+                    alignItems="stretch"
+                >
+                    {progress && <CircularProgress style={{ margin: 'auto' }}/>}
+                    {storeList.length > 0 && storeList.map((e, i) => {
+                        return <Store key={i} store={e}/>
+                    })}
+                </Grid>
+            </Grid>
         </>
     );
 };
