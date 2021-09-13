@@ -48,9 +48,9 @@ const App = () => {
                     if (data.length > 0) {
                         setStoreList(data);
                         setResultMsg(`${data.length}건이 검색되었습니다(${timeElapsed}초)`);
-                        history.push(`/${keyword}(${timeElapsed}초)`);
+                        history.push(`/${keyword}`);
                     } else {
-                        setResultMsg('검색 결과가 없습니다');
+                        setResultMsg(`검색 결과가 없습니다(${timeElapsed}초)`);
                     }
                 })
                 .catch(err => {
