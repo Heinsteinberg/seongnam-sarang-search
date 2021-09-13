@@ -1,10 +1,11 @@
 const Store = props => {
     const store = props.store;
+
     return (
         <>
             <fieldset>
                 <legend>
-                    <strong>[{store.item || '(품목 미기재)'}] {store.name}</strong>
+                    <strong>{store.name} [{store.item || '(품목 미기재)'}]</strong>
                 </legend>
                 주소: {store.location.full || '(미기재)'}<br/>
                 전화번호: {store.tel || '(미기재)'}<br/>
